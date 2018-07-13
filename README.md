@@ -99,23 +99,23 @@
 19 directories, 69 files
 ```
 #### mysql 主从服务器的配置已经写在config对应的目录中 
-mysql-m1 : 主服务器 IP:172.18.0.2 
+mysql-m1 : 主服务器 IP:172.100.0.2 
 
-mysql-s1 : 从服务器slave1 IP:172.18.0.3
+mysql-s1 : 从服务器slave1 IP:172.100.0.3
 
-mysql-s2 : 从服务器slave2 IP:172.18.0.4
+mysql-s2 : 从服务器slave2 IP:172.100.0.4
 
-mycat    : Mycat服务器 IP:172.18.0.5  
+mycat    : Mycat服务器 IP:172.100.0.5  
 
 ### 修改hosts文件 添加解析
 ```shell
 % sudo vi /etc/hosts
 # docker-mycat m1:mysql-master主服务器 s1,s2：mysql-slave 从服务器
 # mycat mycat中间件服务器
-172.18.0.2      m1
-172.18.0.3      s1
-172.18.0.4      s2
-172.18.0.5      mycat
+172.100.0.2      m1
+172.100.0.3      s1
+172.100.0.4      s2
+172.100.0.5      mycat
 127.0.0.1       local
 ```
 
@@ -138,7 +138,7 @@ services:
       - "3309:3306"
     networks:
       mysql:
-        ipv4_address: 172.18.0.2
+        ipv4_address: 172.100.0.2
     ulimits:
       nproc: 65535
     hostname: m1
@@ -157,7 +157,7 @@ services:
         - "3307:3306"
       networks:
         mysql:
-          ipv4_address: 172.18.0.3
+          ipv4_address: 172.100.0.3
       links:
         - m1
       ulimits:
@@ -180,7 +180,7 @@ services:
       - m1
     networks:
       mysql:
-        ipv4_address: 172.18.0.4
+        ipv4_address: 172.100.0.4
     ulimits:
       nproc: 65535
     hostname: s2
@@ -205,7 +205,7 @@ services:
       - s2
     networks:
       mysql:
-        ipv4_address: 172.18.0.5
+        ipv4_address: 172.100.0.5
     ulimits:
       nproc: 65535
     hostname: mycat
@@ -217,8 +217,8 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: 172.18.0.0/24
-        gateway: 172.18.0.1
+      - subnet: 172.100.0.0/24
+        gateway: 172.100.0.1
 ```
 ### Build 镜像
 ```shell
@@ -264,7 +264,7 @@ mysql> create user repl;
 ```
 给repl用户授予slave的权限
 ```shell
-mysql> GRANT REPLICATION SLAVE ON *.* TO 'repl'@'172.18.0.%' IDENTIFIED BY 'repl';
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'repl'@'172.100.0.%' IDENTIFIED BY 'repl';
 Query OK, 0 rows affected, 1 warning (0.00 sec)
 ```
 锁表
@@ -342,9 +342,9 @@ MySQL [(none)]> show databases;
         <dataHost name="masterDH" maxCon="1000" minCon="10" balance="1"           
                           writeType="0" dbType="mysql" dbDriver="native" switchType="-1" slaveThreshold="100"> 
                 <heartbeat>select user()</heartbeat>                   
-                <writeHost host="m1" url="172.18.0.2:3306" user="root" password="m1test">                      
-                        <readHost host="s1" url="172.18.0.3:3306" user="root" password="s1test" />             
-                        <readHost host="s2" url="172.18.0.4:3306" user="root" password="s2test" />             
+                <writeHost host="m1" url="172.100.0.2:3306" user="root" password="m1test">                      
+                        <readHost host="s1" url="172.100.0.3:3306" user="root" password="s1test" />             
+                        <readHost host="s2" url="172.100.0.4:3306" user="root" password="s2test" />             
                 </writeHost>
         </dataHost>  
 </mycat:schema>               
@@ -414,9 +414,9 @@ server.xml 配置文件
         <!-- 全局SQL防火墙设置
         <firewall>
            <whitehost>
-              <host host="172.18.0.2" user="root"/>
-              <host host="172.18.0.3" user="root"/>
-                                <host host="172.18.0.4" user="root"/>
+              <host host="172.100.0.2" user="root"/>
+              <host host="172.100.0.3" user="root"/>
+                                <host host="172.100.0.4" user="root"/>
            </whitehost>
        <blacklist check="false">
        </blacklist>
