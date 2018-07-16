@@ -3,15 +3,17 @@ services:
   m1:
     build: ./mysql_m1
     container_name: m1
+    privileged: true
     volumes:
       - ../config/mysql-m1/:/etc/mysql/:ro
-      #- /etc/localtime:/etc/localtime:ro
+      - /etc/localtime:/etc/localtime:ro
       - ../config/hosts:/etc/hosts:ro
+      - ../data/mysql-m1:/var/lib/mysql
     ports:
       - "3309:3306"
-    networks:
-        mysql:
-          ipv4_address: 172.100.0.2
+    networks: 
+      mysql:
+        ipv4_address: 172.18.0.2
     ulimits:
       nproc: 65535
     hostname: m1
@@ -22,15 +24,17 @@ services:
   s1:
       build: ./mysql_s1
       container_name: s1
+      privileged: true
       volumes:
         - ../config/mysql-s1/:/etc/mysql/:ro
-       # - /etc/localtime:/etc/localtime:ro
+        - /etc/localtime:/etc/localtime:ro
         - ../config/hosts:/etc/hosts:ro
+        - ../data/mysql-s1:/var/lib/mysql
       ports:
         - "3307:3306"
       networks:
         mysql:
-          ipv4_address: 172.100.0.3
+          ipv4_address: 172.18.0.3
       links:
         - m1
       ulimits:
@@ -43,17 +47,19 @@ services:
   s2:
     build: ./mysql_s2
     container_name: s2
+    privileged: true
     volumes:
       - ../config/mysql-s2/:/etc/mysql/:ro
-      #- /etc/localtime:/etc/localtime:ro
+      - /etc/localtime:/etc/localtime:ro
       - ../config/hosts:/etc/hosts:ro
+      - ../data/mysql-s2:/var/lib/mysql
     ports:
       - "3308:3306"
     links:
       - m1
     networks:
       mysql:
-        ipv4_address: 172.100.0.4
+        ipv4_address: 172.18.0.4
     ulimits:
       nproc: 65535
     hostname: s2
@@ -64,10 +70,11 @@ services:
   mycat:
     build: ./mycat
     container_name: mycat
+    privileged: true
     volumes:
       - ../config/mycat/:/mycat/conf/:ro
       - ../log/mycat-logs/:/mycat/logs/:rw
-      #- /etc/localtime:/etc/localtime:ro
+      - /etc/localtime:/etc/localtime:ro
       - ../config/hosts:/etc/hosts:ro
     ports:
       - "8066:8066"
@@ -78,7 +85,7 @@ services:
       - s2
     networks:
       mysql:
-        ipv4_address: 172.100.0.5
+        ipv4_address: 172.18.0.5
     ulimits:
       nproc: 65535
     hostname: mycat
@@ -90,5 +97,5 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: 172.100.0.0/24
-        gateway: 172.100.0.1
+      - subnet: 172.18.0.0/24
+        gateway: 172.18.0.1
